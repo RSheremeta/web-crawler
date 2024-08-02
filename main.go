@@ -2,32 +2,40 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"time"
 
-	"github.com/RSheremeta/web-crawler/internal/http"
+	"github.com/RSheremeta/web-crawler/internal/config"
 	"github.com/RSheremeta/web-crawler/internal/logger"
+	"github.com/RSheremeta/web-crawler/internal/service/crawler"
+	"github.com/RSheremeta/web-crawler/internal/service/http"
 )
 
-// todo - cfg
-var timeout = 60 * time.Second
-
-// todo - default or from input
-const targetURL = "https://monzo.com/"
+const ctxTimeout = 60 * time.Second
 
 func main() {
-	ctx, cncl := context.WithTimeout(context.Background(), timeout)
+	ctx, cncl := context.WithTimeout(context.Background(), ctxTimeout)
 	defer cncl()
 
-	logger := logger.NewLoggerInstance()
+	log := logger.NewDefaultLogger()
 
-	cl := http.NewHttpClient(logger)
-
-	http.SetDomainRegex(targetURL)
-
-	links, err := cl.ExtractLinks(ctx, targetURL)
+	cfg, err := config.NewConfig()
 	if err != nil {
-		logger.Fatalf("cl.ExtractLinks: %s", err)
+		log.Fatalf("couldn't init cfg %s", err)
+	}
+
+	log = logger.NewLogger(cfg)
+
+	targetURL := flag.String("url", "", "a base url to be crawled on")
+	flag.Parse()
+
+	httpSvc := http.NewHttpService(cfg, log)
+	crawlerSvc := crawler.NewCrawlerService(cfg, log, httpSvc)
+
+	links, err := crawlerSvc.ExtractLinks(ctx, *targetURL)
+	if err != nil {
+		log.Fatalf("crawlerSvc.ExtractLinks: %s", err)
 	}
 
 	fmt.Println()
@@ -36,5 +44,7 @@ func main() {
 	}
 	fmt.Println()
 
-	logger.Infof("total links len is %d", len(links))
+	fmt.Println("targetURL:", *targetURL)
+
+	log.Infof("total links len is %d", len(links))
 }

@@ -1,0 +1,6 @@
+logger:
+  debug_level: true
+http:
+  timeout: 60s
+default_target_url: "https://monzo.com"
+#default_target_url: "https://monzo.co.uk"
