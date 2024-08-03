@@ -28,4 +28,4 @@ Or run linter:
 - ``make lint``
 
 
-[bin]: https://github.com/RSheremeta/archiver/releases/tag/1.0
+[bin]: https://github.com/RSheremeta/web-crawler/releases/tag/1.0
