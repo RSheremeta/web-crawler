@@ -19,11 +19,7 @@ func (s *CrawlerService) parseURL(rawURL string) (*url.URL, error) {
 func (s *CrawlerService) isLinkSuitable(link string) bool {
 	link = s.prettifyLink(link)
 
-	r := reDomain
-	_ = r
-
-	b := reDomain.MatchString(strings.ToLower(link))
-	return b
+	return reDomain.MatchString(strings.ToLower(link))
 }
 
 func (s *CrawlerService) prettifyLink(link string) string {

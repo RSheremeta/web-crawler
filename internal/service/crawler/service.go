@@ -3,9 +3,10 @@ package crawler
 import (
 	"context"
 
-	"github.com/RSheremeta/web-crawler/config"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/html"
+
+	"github.com/RSheremeta/web-crawler/config"
 )
 
 type HttpService interface {

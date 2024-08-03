@@ -5,8 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/RSheremeta/web-crawler/config"
 	"github.com/sirupsen/logrus"
+
+	"github.com/RSheremeta/web-crawler/config"
 )
 
 type CrawlerService interface {

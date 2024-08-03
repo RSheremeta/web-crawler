@@ -7,40 +7,32 @@ import (
 	"strings"
 )
 
-var reDomain *regexp.Regexp
-
 func setDomainRegex(parsed *url.URL) {
 	if parsed == nil {
 		reDomain = reDomainDefault
 		return
 	}
 
-	splitted := strings.Split(parsed.Host, hostSeparator)
+	parts := strings.Split(parsed.Host, hostSeparator)
+	if parts[0] == www {
+		parts = parts[1:]
+	}
 
-	var domainName, domainExtension, domainExtensionSecond string
+	var domain, extFirst, extSecond string
 
-	domainName = splitted[0]
+	domain = parts[0]
 
-	if domainName == www {
-		domainName = splitted[1]
-		domainExtension = splitted[2]
-		domainExtensionSecond = splitted[3]
+	if len(parts) == 2 {
+		extFirst = parts[1]
 
-		reDomain = regexp.MustCompile(fmt.Sprintf(regexMultiDomainPattern, domainName, domainExtension, domainExtensionSecond))
+		reDomain = regexp.MustCompile(fmt.Sprintf(regexSimpleDomainPattern, domain, extFirst))
 		return
 	}
 
-	if len(splitted) == 2 {
-		domainExtension = splitted[1]
-
-		reDomain = regexp.MustCompile(fmt.Sprintf(regexSimpleDomainPattern, domainName, domainExtension))
-		return
+	if len(parts) > 2 {
+		extFirst = parts[1]
+		extSecond = parts[2]
 	}
 
-	if len(splitted) > 2 {
-		domainExtension = splitted[1]
-		domainExtensionSecond = splitted[2]
-	}
-
-	reDomain = regexp.MustCompile(fmt.Sprintf(regexMultiDomainPattern, domainName, domainExtension, domainExtensionSecond))
+	reDomain = regexp.MustCompile(fmt.Sprintf(regexMultiDomainPattern, domain, extFirst, extSecond))
 }

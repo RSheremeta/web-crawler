@@ -2,7 +2,6 @@ package printer
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -11,13 +10,19 @@ import (
 )
 
 func (s *PrinterService) PrintAllLinks(ctx context.Context, url string) {
-	dataChan := make(chan string)
+	dataChan := make(chan string, 1)
 	errChan := make(chan error, 1)
 
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	go s.crawlerService.ExtractLinks(ctx, url, dataChan, errChan, &wg)
+	go s.crawlerService.ExtractLinks(
+		ctx,
+		url,
+		dataChan,
+		errChan,
+		&wg,
+	)
 
 	go func() {
 		wg.Wait()
@@ -38,10 +43,13 @@ func (s *PrinterService) PrintAllLinks(ctx context.Context, url string) {
 		case err, ok := <-errChan:
 			if ok && err != nil {
 				switch err {
-				case crawler.ErrLinkAlreadyProcessed, crawler.ErrNilParsedBody:
+				case crawler.ErrNilParsedBody:
 					// do nothing
 				case http.ErrRateLimitExceeded, http.ErrServiceUnavailable:
-					s.log.Infof("Target website doesn't respond, so tearing down")
+					s.log.Infof("Cannot communicate with the target website, so tearing down")
+					return
+				case http.ErrBrokenLink:
+					s.log.Infof("Found broken link, exiting.")
 					return
 				default:
 					s.log.Fatalf("error: %s", err)
@@ -55,9 +63,7 @@ func (s *PrinterService) PrintAllLinks(ctx context.Context, url string) {
 				return
 			}
 
-			// time.Sleep(50 * time.Millisecond)
-			time.Sleep(s.throttling)
-			fmt.Println(data)
+			s.log.Infoln(data)
 		}
 	}
 }

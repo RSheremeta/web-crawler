@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/RSheremeta/web-crawler/internal/service/http"
 	"golang.org/x/net/html"
+
+	"github.com/RSheremeta/web-crawler/internal/service/http"
 )
+
+var once sync.Once
 
 func (s *CrawlerService) ExtractLinks(
 	ctx context.Context,
@@ -24,22 +27,27 @@ func (s *CrawlerService) ExtractLinks(
 		url = s.defaultURL
 	}
 
+	logger := s.log.WithField("url", url)
+
 	if !s.linkMap.storeIfNotExists(url) {
+		logger.Debugf("link already processed, so skipping it")
 		return
 	}
-
-	logger := s.log.WithField("url", url)
 
 	parsed, err := s.parseURL(url)
 	if err != nil {
 		errChan <- fmt.Errorf("s.parseURL: %w", err)
 	}
 
-	setDomainRegex(parsed)
+	once.Do(func() {
+		setDomainRegex(parsed)
+	})
 
 	parsedHTML, err := s.httpService.ParseHTML(ctx, url)
 	if err != nil {
-		if errors.Is(err, http.ErrRateLimitExceeded) || errors.Is(err, http.ErrServiceUnavailable) {
+		if errors.Is(err, http.ErrRateLimitExceeded) ||
+			errors.Is(err, http.ErrServiceUnavailable) ||
+			errors.Is(err, http.ErrBrokenLink) {
 			errChan <- err
 		}
 		errChan <- fmt.Errorf("httpService.ParseHTML: %w", err)
