@@ -11,19 +11,24 @@ import (
 const configPath = "./config.yaml"
 
 type Config struct {
-	Logger  *LoggerCfg  `yaml:"logger"`
+	DefaultTargetURL string `yaml:"default_target_url"`
+
+	Logger *LoggerCfg `yaml:"logger"`
+
+	Crawler *CrawlerCfg `yaml:"crawler"`
 	Printer *PrinterCfg `yaml:"printer"`
 	Http    *HttpCfg    `yaml:"http"`
-
-	DefaultTargetURL string `yaml:"default_target_url"`
 }
 
 type LoggerCfg struct {
 	DebugLevel bool `yaml:"debug_level"`
 }
 
+type CrawlerCfg struct {
+	Throttling time.Duration `yaml:"throttling"`
+}
+
 type PrinterCfg struct {
-	Throttling     time.Duration `yaml:"throttling"`
 	ContextTimeout time.Duration `yaml:"context_timeout"`
 }
 

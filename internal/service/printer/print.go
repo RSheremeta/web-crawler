@@ -33,30 +33,31 @@ func (s *PrinterService) PrintAllLinks(ctx context.Context, url string) {
 	for {
 		select {
 		case <-time.After(s.ctxTimeout):
-			s.log.Infof("Timeout reached, no more data received.")
+			s.log.Infof("Timeout reached")
 			return
 
 		case <-ctx.Done():
-			s.log.Infof("Context done.")
+			s.log.Infof("Context done")
 			return
 
 		case err, ok := <-errChan:
+			defer s.log.Infof("Processed %d links until err", s.crawlerService.GetProcessedCount())
+
 			if ok && err != nil {
 				switch err {
 				case crawler.ErrNilParsedBody:
 					// do nothing
 				case http.ErrRateLimitExceeded, http.ErrServiceUnavailable:
 					s.log.Infof("Cannot communicate with the target website, so tearing down")
-					return
 				case http.ErrBrokenLink:
-					s.log.Infof("Found broken link, exiting.")
-					return
+					s.log.Infof("Found broken link, exiting")
 				default:
 					s.log.Fatalf("error: %s", err)
-					return
 				}
 			}
+
 			return
+
 		case data, ok := <-dataChan:
 			if !ok {
 				s.log.Infof("Successfully processed %d links", s.crawlerService.GetProcessedCount())

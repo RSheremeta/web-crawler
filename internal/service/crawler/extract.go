@@ -59,6 +59,10 @@ func (s *CrawlerService) ExtractLinks(
 		errChan <- ErrNilParsedBody
 	}
 
+	<-s.ticker.C
+
+	dataChan <- url
+
 	links := s.extractLinksFromHTML(parsedHTML)
 
 	if len(links) == 0 {
@@ -67,10 +71,15 @@ func (s *CrawlerService) ExtractLinks(
 	}
 
 	for i := range links {
-		dataChan <- links[i]
-
 		wg.Add(1)
-		go s.ExtractLinks(ctx, links[i], dataChan, errChan, wg)
+
+		go s.ExtractLinks(
+			ctx,
+			links[i],
+			dataChan,
+			errChan,
+			wg,
+		)
 	}
 
 	logger.Debugf("extracted %d links", len(links))
@@ -91,10 +100,6 @@ func (s *CrawlerService) extractLinksFromHTML(doc *html.Node) []string {
 				}
 
 				item := s.prettifyLink(attr.Val)
-
-				if s.linkMap.exists(item) {
-					continue
-				}
 
 				res = append(res, item)
 			}

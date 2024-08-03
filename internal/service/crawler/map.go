@@ -3,35 +3,23 @@ package crawler
 import "sync"
 
 type LinkMap struct {
-	mu      sync.Mutex
-	storage map[string]struct{}
+	storage sync.Map
 }
 
 func newLinkMap() *LinkMap {
-	return &LinkMap{
-		mu:      sync.Mutex{},
-		storage: map[string]struct{}{},
-	}
-}
-
-func (m *LinkMap) exists(key string) bool {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	_, ok := m.storage[key]
-
-	return ok
+	return &LinkMap{}
 }
 
 func (m *LinkMap) storeIfNotExists(key string) bool {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	_, loaded := m.storage.LoadOrStore(key, struct{}{})
+	return !loaded
+}
 
-	if _, ok := m.storage[key]; ok {
-		return false
-	}
-
-	m.storage[key] = struct{}{}
-
-	return true
+func (m *LinkMap) len() int {
+	count := 0
+	m.storage.Range(func(_, _ interface{}) bool {
+		count++
+		return true
+	})
+	return count
 }

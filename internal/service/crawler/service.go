@@ -2,6 +2,7 @@ package crawler
 
 import (
 	"context"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/html"
@@ -16,6 +17,7 @@ type HttpService interface {
 type CrawlerService struct {
 	log        *logrus.Entry
 	defaultURL string
+	ticker     *time.Ticker
 
 	linkMap *LinkMap
 
@@ -38,6 +40,8 @@ func NewCrawlerService(
 			return targetURL
 		}(),
 
+		ticker: time.NewTicker(cfg.Crawler.Throttling),
+
 		linkMap: newLinkMap(),
 
 		httpService: httpService,
@@ -45,5 +49,5 @@ func NewCrawlerService(
 }
 
 func (s *CrawlerService) GetProcessedCount() int {
-	return len(s.linkMap.storage)
+	return s.linkMap.len()
 }

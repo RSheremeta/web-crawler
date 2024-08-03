@@ -1,16 +1,17 @@
+default_target_url: "https://monzo.com"
+
 logger:
   # debug_level: true
   debug_level: false
-printer:
+
+crawler:
   throttling: 50ms
+
+printer:
   context_timeout: 10s
+
 http:
   timeout: 60s
   max_idle_conns: 10
   max_idle_conns_per_host: 10
   idle_conn_timeout: 30s
-
-# default_target_url: "https://monzo.com"
-
-# default_target_url: "https://pipedream.com/apps/swapi"
-default_target_url: "https://www.theautomatedtester.co.uk"
