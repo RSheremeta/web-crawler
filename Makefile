@@ -7,7 +7,7 @@ lint: # runs linter
 	golangci-lint run 
 
 build: # builds the app binary
-	go build cmd/main.go
+	go build -o web-crawler cmd/main.go
 
 run: # runs the app with the passed in url param
 	go run cmd/main.go -url=$(url)
