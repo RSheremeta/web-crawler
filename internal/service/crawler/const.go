@@ -5,18 +5,20 @@ import (
 	"regexp"
 )
 
-const emptyPath = "/"
+const (
+	www           = "www"
+	hostSeparator = "."
+)
 
 const (
 	anchorTag     = "a"
-	linkTag       = "link"
 	linkAttribute = "href"
 )
 
-const hostSeparator = "."
+const emptyPath = "/"
 
-const regexSimpleDomainPattern = `^https:\/\/(www\.)?%s\.%s\/.*$`
-const regexMultiDomainPattern = `^https:\/\/(www\.)?%s\.%s\/%s\/.*$`
+const regexSimpleDomainPattern = `^(?:(?:https?)://)?(?:www\.)?%s\.%s\/.*$`
+const regexMultiDomainPattern = `^(?:(?:https?)://)?(?:www\.)?%s\.%s\.%s\/.*$`
 
 var reDomainDefault = regexp.MustCompile(`^(?:(?:https?)://)?(?:www\.)?monzo\.com(/.*)?$`)
 

@@ -17,11 +17,13 @@ type CrawlerService interface {
 		errChan chan<- error,
 		wg *sync.WaitGroup,
 	)
+	GetProcessedCount() int
 }
 
 type PrinterService struct {
 	log        *logrus.Entry
 	ctxTimeout time.Duration
+	throttling time.Duration
 
 	crawlerService CrawlerService
 }
@@ -35,6 +37,7 @@ func NewPrinterService(
 	return &PrinterService{
 		log:        logger.WithField("service", "printer"),
 		ctxTimeout: cfg.Printer.ContextTimeout,
+		throttling: cfg.Printer.Throttling,
 
 		crawlerService: crawlerService,
 	}

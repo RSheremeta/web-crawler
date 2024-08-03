@@ -23,6 +23,7 @@ type LoggerCfg struct {
 }
 
 type PrinterCfg struct {
+	Throttling     time.Duration `yaml:"throttling"`
 	ContextTimeout time.Duration `yaml:"context_timeout"`
 }
 

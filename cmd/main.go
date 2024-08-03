@@ -19,7 +19,7 @@ const (
 	ctxTimeout = 60 * time.Second
 
 	flagName  = "url"
-	flagDescr = "a base url to be crawled on"
+	flagDescr = "the base url to be crawled on"
 )
 
 func main() {
@@ -55,7 +55,6 @@ func main() {
 
 		cncl()
 
-		time.Sleep(2 * time.Second)
 		os.Exit(0)
 	}()
 

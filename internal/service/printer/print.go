@@ -51,9 +51,12 @@ func (s *PrinterService) PrintAllLinks(ctx context.Context, url string) {
 			return
 		case data, ok := <-dataChan:
 			if !ok {
+				s.log.Infof("Successfully processed %d links", s.crawlerService.GetProcessedCount())
 				return
 			}
 
+			// time.Sleep(50 * time.Millisecond)
+			time.Sleep(s.throttling)
 			fmt.Println(data)
 		}
 	}

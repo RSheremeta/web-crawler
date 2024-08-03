@@ -51,9 +51,12 @@ func (s *CrawlerService) ExtractLinks(
 		errChan <- ErrNilParsedBody
 	}
 
-	// s.linkMap.store(url)
-
 	links := s.extractLinksFromHTML(parsedHTML)
+
+	if len(links) == 0 {
+		logger.Debugf("no links found on the page")
+		return
+	}
 
 	for i := range links {
 		dataChan <- links[i]
@@ -72,7 +75,7 @@ func (s *CrawlerService) extractLinksFromHTML(doc *html.Node) []string {
 		return res
 	}
 
-	if doc.Type == html.ElementNode && (doc.Data == anchorTag || doc.Data == linkTag) {
+	if doc.Type == html.ElementNode && doc.Data == anchorTag {
 		for _, attr := range doc.Attr {
 			if attr.Key == linkAttribute {
 				if !s.isLinkSuitable(attr.Val) {

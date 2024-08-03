@@ -24,21 +24,25 @@ type CrawlerService struct {
 func NewCrawlerService(
 	cfg *config.Config,
 	logger *logrus.Entry,
-	defaultURL string,
+	targetURL string,
 	httpService HttpService,
 ) *CrawlerService {
 	return &CrawlerService{
 		log: logger.WithField("service", "crawler"),
 		defaultURL: func() string {
-			if defaultURL == "" {
+			if targetURL == "" {
 				return cfg.DefaultTargetURL
 			}
 
-			return defaultURL
+			return targetURL
 		}(),
 
 		linkMap: newLinkMap(),
 
 		httpService: httpService,
 	}
+}
+
+func (s *CrawlerService) GetProcessedCount() int {
+	return len(s.linkMap.storage)
 }

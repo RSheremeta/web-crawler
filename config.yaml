@@ -1,6 +1,8 @@
 logger:
-  debug_level: false #true
+  # debug_level: true
+  debug_level: false
 printer:
+  throttling: 50ms
   context_timeout: 10s
 http:
   timeout: 60s

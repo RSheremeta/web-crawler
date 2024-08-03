@@ -21,6 +21,15 @@ func setDomainRegex(parsed *url.URL) {
 
 	domainName = splitted[0]
 
+	if domainName == www {
+		domainName = splitted[1]
+		domainExtension = splitted[2]
+		domainExtensionSecond = splitted[3]
+
+		reDomain = regexp.MustCompile(fmt.Sprintf(regexMultiDomainPattern, domainName, domainExtension, domainExtensionSecond))
+		return
+	}
+
 	if len(splitted) == 2 {
 		domainExtension = splitted[1]
 
