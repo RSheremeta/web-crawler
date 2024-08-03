@@ -3,16 +3,23 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
-	"github.com/RSheremeta/web-crawler/internal/config"
+	"github.com/RSheremeta/web-crawler/config"
 	"github.com/RSheremeta/web-crawler/internal/logger"
 	"github.com/RSheremeta/web-crawler/internal/service/crawler"
 	"github.com/RSheremeta/web-crawler/internal/service/http"
 )
 
-const ctxTimeout = 60 * time.Second
+const (
+	ctxTimeout = 60 * time.Second
+
+	flagName  = "url"
+	flagDescr = "a base url to be crawled on"
+)
 
 func main() {
 	ctx, cncl := context.WithTimeout(context.Background(), ctxTimeout)
@@ -27,24 +34,28 @@ func main() {
 
 	log = logger.NewLogger(cfg)
 
-	targetURL := flag.String("url", "", "a base url to be crawled on")
+	targetURL := flag.String(flagName, "", flagDescr)
 	flag.Parse()
 
 	httpSvc := http.NewHttpService(cfg, log)
-	crawlerSvc := crawler.NewCrawlerService(cfg, log, httpSvc)
+	crawlerSvc := crawler.NewCrawlerService(cfg, log, *targetURL, httpSvc)
 
-	links, err := crawlerSvc.ExtractLinks(ctx, *targetURL)
-	if err != nil {
-		log.Fatalf("crawlerSvc.ExtractLinks: %s", err)
-	}
+	stopChan := make(chan os.Signal, 1)
+	signal.Notify(
+		stopChan,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+	)
 
-	fmt.Println()
-	for i := range links {
-		fmt.Println(links[i])
-	}
-	fmt.Println()
+	go func() {
+		sign := <-stopChan
+		log.Infof("Captured exit signal %v, stopping...", sign.String())
 
-	fmt.Println("targetURL:", *targetURL)
+		cncl()
 
-	log.Infof("total links len is %d", len(links))
+		time.Sleep(2 * time.Second)
+		os.Exit(0)
+	}()
+
+	crawlerSvc.PrintAllLinks(ctx, *targetURL)
 }

@@ -3,7 +3,7 @@ package logger
 import (
 	"time"
 
-	"github.com/RSheremeta/web-crawler/internal/config"
+	"github.com/RSheremeta/web-crawler/config"
 	"github.com/sirupsen/logrus"
 )
 

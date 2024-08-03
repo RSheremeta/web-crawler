@@ -23,20 +23,15 @@ func (m *LinkMap) exists(key string) bool {
 	return ok
 }
 
-func (m *LinkMap) store(key string) {
+func (m *LinkMap) storeIfNotExists(key string) bool {
 	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, ok := m.storage[key]; ok {
+		return false
+	}
 
 	m.storage[key] = struct{}{}
 
-	m.mu.Unlock()
-}
-
-func (m *LinkMap) storeBatch(keys []string) {
-	for i := range keys {
-		m.store(keys[i])
-	}
-}
-
-func (m *LinkMap) flush() {
-	m.storage = nil
+	return true
 }

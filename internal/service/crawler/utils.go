@@ -16,14 +16,16 @@ func (s *CrawlerService) parseURL(rawURL string) (*url.URL, error) {
 	return res, nil
 }
 
-func (s *CrawlerService) isLinkSuitable(url, link string) bool {
-	if strings.HasSuffix(link, "/") && link != emptyPath {
-		link = url + link // todo - prettify url parsing
+func (s *CrawlerService) isLinkSuitable(link string) bool {
+	link = s.prettifyLink(link)
+
+	return reDomain.MatchString(strings.ToLower(link))
+}
+
+func (s *CrawlerService) prettifyLink(link string) string {
+	if strings.HasPrefix(link, "/") && link != emptyPath {
+		link = s.defaultURL + link
 	}
 
-	if !reDomain.MatchString(strings.ToLower(link)) {
-		return false
-	}
-
-	return true
+	return link
 }

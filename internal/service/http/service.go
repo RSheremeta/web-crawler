@@ -3,7 +3,7 @@ package http
 import (
 	"net/http"
 
-	"github.com/RSheremeta/web-crawler/internal/config"
+	"github.com/RSheremeta/web-crawler/config"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,6 +18,11 @@ func NewHttpService(cfg *config.Config, logger *logrus.Entry) *HttpService {
 
 		client: &http.Client{
 			Timeout: cfg.Http.Timeout,
+			Transport: &http.Transport{
+				MaxIdleConns:        cfg.Http.MaxIdleConns,
+				MaxIdleConnsPerHost: cfg.Http.MaxIdleConnsPerHost,
+				IdleConnTimeout:     cfg.Http.IdleConnTimeout,
+			},
 		},
 	}
 }

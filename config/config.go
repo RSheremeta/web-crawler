@@ -11,8 +11,9 @@ import (
 const configPath = "./config.yaml"
 
 type Config struct {
-	Logger *LoggerCfg `yaml:"logger"`
-	Http   *HttpCfg   `yaml:"http"`
+	Logger  *LoggerCfg  `yaml:"logger"`
+	Crawler *CrawlerCfg `yaml:"crawler"`
+	Http    *HttpCfg    `yaml:"http"`
 
 	DefaultTargetURL string `yaml:"default_target_url"`
 }
@@ -21,8 +22,15 @@ type LoggerCfg struct {
 	DebugLevel bool `yaml:"debug_level"`
 }
 
+type CrawlerCfg struct {
+	ContextTimeout time.Duration `yaml:"context_timeout"`
+}
+
 type HttpCfg struct {
-	Timeout time.Duration `yaml:"timeout"`
+	Timeout             time.Duration `yaml:"timeout"`
+	MaxIdleConns        int           `yaml:"max_idle_conns"`
+	MaxIdleConnsPerHost int           `yaml:"max_idle_conns_per_host"`
+	IdleConnTimeout     time.Duration `yaml:"idle_conn_timeout"`
 }
 
 func NewConfig() (*Config, error) {
