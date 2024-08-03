@@ -12,6 +12,7 @@ import (
 	"github.com/RSheremeta/web-crawler/internal/logger"
 	"github.com/RSheremeta/web-crawler/internal/service/crawler"
 	"github.com/RSheremeta/web-crawler/internal/service/http"
+	"github.com/RSheremeta/web-crawler/internal/service/printer"
 )
 
 const (
@@ -39,6 +40,7 @@ func main() {
 
 	httpSvc := http.NewHttpService(cfg, log)
 	crawlerSvc := crawler.NewCrawlerService(cfg, log, *targetURL, httpSvc)
+	printerSvc := printer.NewPrinterService(cfg, log, crawlerSvc)
 
 	stopChan := make(chan os.Signal, 1)
 	signal.Notify(
@@ -57,5 +59,5 @@ func main() {
 		os.Exit(0)
 	}()
 
-	crawlerSvc.PrintAllLinks(ctx, *targetURL)
+	printerSvc.PrintAllLinks(ctx, *targetURL)
 }

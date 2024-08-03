@@ -1,4 +1,4 @@
-package crawler
+package printer
 
 import (
 	"context"
@@ -6,17 +6,18 @@ import (
 	"sync"
 	"time"
 
+	"github.com/RSheremeta/web-crawler/internal/service/crawler"
 	"github.com/RSheremeta/web-crawler/internal/service/http"
 )
 
-func (s *CrawlerService) PrintAllLinks(ctx context.Context, url string) {
+func (s *PrinterService) PrintAllLinks(ctx context.Context, url string) {
 	dataChan := make(chan string)
 	errChan := make(chan error, 1)
 
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	go s.ExtractLinks(ctx, url, dataChan, errChan, &wg)
+	go s.crawlerService.ExtractLinks(ctx, url, dataChan, errChan, &wg)
 
 	go func() {
 		wg.Wait()
@@ -37,7 +38,7 @@ func (s *CrawlerService) PrintAllLinks(ctx context.Context, url string) {
 		case err, ok := <-errChan:
 			if ok && err != nil {
 				switch err {
-				case ErrLinkAlreadyProcessed, ErrNilParsedBody:
+				case crawler.ErrLinkAlreadyProcessed, crawler.ErrNilParsedBody:
 					// do nothing
 				case http.ErrRateLimitExceeded, http.ErrServiceUnavailable:
 					s.log.Infof("Target website doesn't respond, so tearing down")
@@ -50,7 +51,6 @@ func (s *CrawlerService) PrintAllLinks(ctx context.Context, url string) {
 			return
 		case data, ok := <-dataChan:
 			if !ok {
-				s.log.Infof("Successfully printed %d links", len(s.linkMap.storage))
 				return
 			}
 

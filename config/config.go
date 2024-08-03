@@ -12,7 +12,7 @@ const configPath = "./config.yaml"
 
 type Config struct {
 	Logger  *LoggerCfg  `yaml:"logger"`
-	Crawler *CrawlerCfg `yaml:"crawler"`
+	Printer *PrinterCfg `yaml:"printer"`
 	Http    *HttpCfg    `yaml:"http"`
 
 	DefaultTargetURL string `yaml:"default_target_url"`
@@ -22,7 +22,7 @@ type LoggerCfg struct {
 	DebugLevel bool `yaml:"debug_level"`
 }
 
-type CrawlerCfg struct {
+type PrinterCfg struct {
 	ContextTimeout time.Duration `yaml:"context_timeout"`
 }
 

@@ -2,7 +2,6 @@ package crawler
 
 import (
 	"context"
-	"time"
 
 	"github.com/RSheremeta/web-crawler/config"
 	"github.com/sirupsen/logrus"
@@ -20,8 +19,6 @@ type CrawlerService struct {
 	linkMap *LinkMap
 
 	httpService HttpService
-
-	ctxTimeout time.Duration
 }
 
 func NewCrawlerService(
@@ -43,7 +40,5 @@ func NewCrawlerService(
 		linkMap: newLinkMap(),
 
 		httpService: httpService,
-
-		ctxTimeout: cfg.Crawler.ContextTimeout,
 	}
 }
